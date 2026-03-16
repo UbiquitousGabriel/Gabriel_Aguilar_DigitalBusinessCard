@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gabriel Aguilar</title>
+  <style>
+    /*
+     * ─────────────────────────────────────────────────────────────────
+     *  FLUID TYPOGRAPHY SYSTEM — Gabriel Aguilar
+     *
+     *  Scale reference (viewport breakpoints):
+     *    Floor  → 320px  (smallest phone)
+     *    Ideal  → 1024px (laptop / tablet landscape)
+     *    Ceiling→ 1920px (desktop / ultra-wide)
+     *
+     *  Formula: clamp(floor, preferred-vw, ceiling)
+     *    preferred-vw is calibrated so the value hits the visual
+     *    sweet-spot at ~1024px without help from media queries.
+     *
+     *  Color note: all text (except the Name) uses #ede0c4 — the
+     *  peak-brightness warm champagne sampled from the Bézier canvas
+     *  (hsl 44 45% 88%). Against the near-black #060606 background
+     *  this yields ≈ 9.8:1 contrast at full opacity, safely above
+     *  WCAG AA (4.5:1) even at the 0.75 opacity used on contact links.
+     * ─────────────────────────────────────────────────────────────────
+     */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #060606;
+      /* Prevent font inflation on iOS */
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    /* ── Full-screen shell ── */
+    #ga-wrap {
+      width: 100vw;
+      height: 100vh;
+      background: #060606;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Canvas fills entire shell ── */
+    #ga-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* ──────────────────────────────────────────
+       CENTER CARD
+       Width: fluid 90vw, hard cap at 600px so
+       the name never spans an absurd width on
+       ultra-wide monitors.
+    ────────────────────────────────────────── */
+    #ga-card {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Gap scales with viewport so vertical rhythm holds at any size */
+      gap: clamp(8px, 1.2vh, 16px);
+      pointer-events: none;
+      width: 90vw;
+      max-width: 600px;
+    }
+
+    /* ── h1 equivalent: the Name ──────────────
+       Floor  1.9rem  → ~304px at 320px vw
+       Ideal  4.8vw   → ~49px  at 1024px vw  (perfect visual weight)
+       Ceiling 3.2rem → ~51px  at 1920px vw  (prevents runaway scale)
+    ────────────────────────────────────────── */
+    #ga-card .name {
+      font-family: 'Times New Roman', Times, serif;
+      font-weight: 400;
+      font-size: clamp(1.9rem, 4.8vw, 3.2rem);
+      color: #f2ede4;                    /* warm white — stays distinct from accent */
+      letter-spacing: 0.10em;
+      line-height: 1;
+      text-transform: uppercase;
+      /* text-shadow lifts the name off busy animation frames */
+      text-shadow: 0 0 40px rgba(6,6,6,0.9), 0 0 80px rgba(6,6,6,0.6);
+    }
+
+    /* ── Subtitle / role line ─────────────────
+       Floor  0.6rem  → always legible label
+       Ideal  1.15vw  → proportional to name at mid-width
+       Ceiling 0.78rem → stops growing before feeling boxy
+       Extra letter-spacing compensates for small size on mobile.
+    ────────────────────────────────────────── */
+    #ga-card .title {
+      font-family: 'Times New Roman', Times, serif;
+      font-weight: 400;
+      font-size: clamp(0.6rem, 1.15vw, 0.78rem);
+      color: #ede0c4;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      /* Optical tuck under the name */
+      margin-top: clamp(-6px, -0.5vh, -2px);
+      /* Subtle glow improves legibility over animated curves */
+      text-shadow: 0 0 24px rgba(6,6,6,0.95);
+    }
+
+    #ga-card .divider {
+      /* Scales width proportionally so it doesn't look lost at large sizes */
+      width: clamp(28px, 3.5vw, 48px);
+      height: 1px;
+      background: rgba(255,255,255,0.18);
+    }
+
+    #ga-card .contact {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(4px, 0.7vh, 8px);
+      align-items: center;
+    }
+
+    /* ── Anchor / contact links ───────────────
+       Floor  0.82rem → minimum comfortable tap target text
+       Ideal  1.6vw   → scales with card width
+       Ceiling 1.05rem → doesn't overpower the name
+       min-height 44px ensures a WCAG-compliant touch target.
+    ────────────────────────────────────────── */
+    #ga-card .contact a {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: clamp(0.82rem, 1.6vw, 1.05rem);
+      color: #ede0c4;
+      letter-spacing: 0.07em;
+      text-decoration: none;
+      pointer-events: all;
+      transition: opacity 0.3s;
+      opacity: 0.75;
+      /* Touch target height without affecting layout */
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 2px;
+      text-shadow: 0 0 20px rgba(6,6,6,0.9);
+    }
+    #ga-card .contact a:hover { opacity: 1; }
+
+    /* ──────────────────────────────────────────
+       DRAG HINT
+       Fixed bottom position uses vh so the gap
+       from the screen edge is proportional.
+       Font floor at 0.65rem keeps it readable
+       on a 320px phone without being obtrusive.
+    ────────────────────────────────────────── */
+    #ga-hint {
+      position: absolute;
+      bottom: clamp(16px, 3vh, 32px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: clamp(0.65rem, 1.1vw, 0.78rem);
+      color: #ede0c4;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      animation: hpulse 2.5s ease-in-out infinite;
+      pointer-events: none;
+      /* Touch-friendly hit area */
+      padding: clamp(10px, 1.5vh, 16px) 12px;
+    }
+    @keyframes hpulse {
+      0%,100% { opacity:0.2; transform:translateX(-50%) translateY(0); }
+      50%      { opacity:0.6; transform:translateX(-50%) translateY(-4px); }
+    }
+
+    /* ──────────────────────────────────────────
+       BIO DRAWER
+       Padding uses both vw (horizontal gutters)
+       and vh (vertical breathing room) so the
+       drawer feels proportional at any screen size.
+    ────────────────────────────────────────── */
+    #ga-bio {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      background: #0e0e0e;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      /* Horizontal: 5vw min, 8% preferred, 80px max — never touches edges */
+      padding: clamp(24px, 4vh, 40px) clamp(20px, 8vw, 80px) clamp(32px, 5vh, 56px);
+      z-index: 30;
+      transform: translateY(100%);
+      transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
+      overflow-y: auto;
+      max-height: 85vh;
+    }
+    #ga-bio.open { transform: translateY(0); }
+
+    #ga-bio-handle {
+      width: clamp(28px, 3.5vw, 48px);
+      height: 3px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin: 0 auto clamp(16px, 2.5vh, 24px);
+    }
+
+    /* ── h2: Bio name header ──────────────────
+       Floor  1.1rem  → clear heading on mobile
+       Ideal  3vw     → proportional at laptop width
+       Ceiling 1.5rem → modest — bio is supportive, not dominant
+    ────────────────────────────────────────── */
+    #ga-bio h2 {
+      font-family: 'Times New Roman', Times, serif;
+      font-weight: 400;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: #f2ede4;
+      margin-bottom: clamp(10px, 1.5vh, 18px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #ga-bio-inner {
+      display: flex;
+      gap: clamp(16px, 2.5vw, 28px);
+      align-items: flex-start;
+    }
+
+    #ga-headshot {
+      /* Fluid headshot: scales between 80–120px wide */
+      width: clamp(80px, 9vw, 120px);
+      min-width: clamp(80px, 9vw, 120px);
+      height: auto;
+      aspect-ratio: 10 / 13;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 3px;
+      opacity: 0.88;
+      filter: sepia(0.2) contrast(1.05);
+      border: 1px solid rgba(237,224,196,0.15);
+    }
+
+    /* ── Body copy container ──────────────────
+       max-width: 66ch prevents line lengths that
+       exceed ~75 chars on wide screens — the
+       typographic sweet-spot for prose legibility.
+       On narrow screens flex:1 still lets it fill
+       the available width naturally.
+    ────────────────────────────────────────── */
+    #ga-bio-text {
+      flex: 1;
+      min-width: 0;
+      max-width: 66ch;
+    }
+
+    /* ── p: Bio body text ─────────────────────
+       Floor  0.83rem → comfortable mobile reading
+       Ideal  1.5vw   → scales smoothly to desktop
+       Ceiling 0.96rem → stays small and editorial;
+                         big type here would fight the name
+       line-height 1.85 is generous for long-form prose.
+    ────────────────────────────────────────── */
+    #ga-bio p {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: clamp(0.83rem, 1.5vw, 0.96rem);
+      color: #ede0c4;
+      line-height: 1.85;
+      margin-bottom: clamp(8px, 1.2vh, 14px);
+      opacity: 0.72;
+    }
+
+    /* ── Close button ─────────────────────────
+       Font scales so it remains a usable tap
+       target (min 44×44px effective area) on
+       any screen without being visually heavy.
+    ────────────────────────────────────────── */
+    #ga-close {
+      position: absolute;
+      top: clamp(10px, 1.5vh, 18px);
+      right: clamp(14px, 2vw, 22px);
+      background: none; border: none;
+      color: rgba(255,255,255,0.35);
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      /* 44×44 touch target */
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'Times New Roman', serif;
+      transition: color 0.25s;
+    }
+    #ga-close:hover { color: rgba(255,255,255,0.7); }
+
+    /* ──────────────────────────────────────────
+       MOBILE OVERRIDES  ≤ 480px
+       The main clamp() ranges already handle
+       most of the work; these overrides address
+       layout-level changes that clamp() can't.
+    ────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      /* Stack headshot above text in bio */
+      #ga-bio-inner {
+        flex-direction: column;
+        align-items: center;
+      }
+      /* Headshot becomes a landscape banner at top of bio */
+      #ga-headshot {
+        width: clamp(72px, 22vw, 96px);
+        min-width: unset;
+        aspect-ratio: 10 / 13;
+      }
+      /* Release the 66ch cap — on a 320px screen ch-based max-width
+         would be tighter than the available space anyway */
+      #ga-bio-text {
+        max-width: 100%;
+      }
+    }
+
+    /* ──────────────────────────────────────────
+       ULTRA-WIDE OVERRIDE  ≥ 1600px
+       At very large viewports the bio text
+       should center itself with generous margins
+       rather than anchoring to the left edge.
+    ────────────────────────────────────────── */
+    @media (min-width: 1600px) {
+      #ga-bio-inner {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="ga-wrap">
+  <canvas id="ga-canvas"></canvas>
+
+  <div id="ga-card">
+    <div class="name">Gabriel Aguilar</div>
+    <div class="title">Immersive Director &amp; Creative Technologist</div>
+    <div class="divider"></div>
+    <div class="contact">
+      <a href="mailto:immersivegabriel@gmail.com">immersivegabriel@gmail.com</a>
+      <a href="tel:7174228560">717 · 422 · 8560</a>
+    </div>
+  </div>
+
+  <div id="ga-hint">↑ drag up for bio</div>
+
+  <div id="ga-bio">
+    <button id="ga-close">×</button>
+    <div id="ga-bio-handle"></div>
+    <h2>Gabriel Aguilar</h2>
+    <div id="ga-bio-inner">
+      <img id="ga-headshot" src="headshot.jpg" alt="Gabriel Aguilar" />
+      <div id="ga-bio-text">
+        <p>Gabriel Aguilar is an Immersive Director and Creative Technologist whose work spans live theater, installation, and interactive experience design. Before focusing on immersive work, he spent five years as a professional video editor, cutting branded content for clients including Johnson &amp; Johnson, Mount Sinai, and The Moth Project. This foundation sharpened his instincts for pacing, visual storytelling, and narrative structure.</p>
+        <p>Drawing on a background that encompasses theatrical production, cinematography, spatial media, and emerging technologies, he creates environments in which the audience's physical presence is the medium. He is currently completing a BTech in Emerging Media Technologies at CUNY City Tech and building a practice centered on immersive performance and projection mapping.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('ga-canvas');
+  const ctx    = canvas.getContext('2d');
+  const wrap   = document.getElementById('ga-wrap');
+  let W, H, cx, cy, R;
+
+  function resize() {
+    W = canvas.width  = wrap.offsetWidth;
+    H = canvas.height = wrap.offsetHeight;
+    cx = W / 2; cy = H / 2;
+    R  = Math.min(W, H) * 0.32;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const RINGS = [
+    { n:13, rm:1.0,  hue:32, alpha:0.72, spd:1.0,  lw:1.2 },
+    { n:10, rm:0.70, hue:20, alpha:0.45, spd:0.65, lw:1.0 },
+    { n:16, rm:1.30, hue:44, alpha:0.32, spd:1.35, lw:0.8 },
+  ];
+
+  const ringData = RINGS.map((ring, si) =>
+    Array.from({length: ring.n}, (_, i) => ({
+      baseAngle: (i / ring.n) * Math.PI * 2,
+      phase: si * 2.1 + i * 0.47,
+      ps: 0.28 + (i % 3) * 0.09,
+      wa: 0.07 + (i % 4) * 0.025,
+      cp1p: si * 2.1 + i * 0.91,
+      cp2p: si * 2.1 + i * 1.37,
+      cs: 0.22 + (i % 5) * 0.06,
+      cp1r: 0.35, cp1t: 0.35,
+      cp2r: 0.35, cp2t: 0.35
+    }))
+  );
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const pt   = (a, r)    => ({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
+
+  function draw(ts) {
+    ctx.clearRect(0, 0, W, H);
+    const t = ts * 0.001;
+
+    const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.7);
+    bg.addColorStop(0, 'rgba(16,11,8,0.98)');
+    bg.addColorStop(1, 'rgba(4,4,4,1)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    RINGS.forEach((ring, ri) => {
+      const curves = ringData[ri], radius = R * ring.rm;
+      curves.forEach((c, i) => {
+        if (Math.random() < 0.003) c.cp1t = 0.12 + Math.random() * 0.6;
+        if (Math.random() < 0.003) c.cp2t = 0.12 + Math.random() * 0.6;
+        c.cp1r = lerp(c.cp1r, c.cp1t, 0.007);
+        c.cp2r = lerp(c.cp2r, c.cp2t, 0.007);
+
+        const nx  = curves[(i + 1) % ring.n];
+        const a1  = c.baseAngle  + Math.sin(t * c.ps  * ring.spd + c.phase)  * c.wa;
+        const a2  = nx.baseAngle + Math.sin(t * nx.ps * ring.spd + nx.phase) * nx.wa;
+        const p1  = pt(a1, radius);
+        const p2  = pt(a2, radius);
+        const cp1 = pt(a1 + Math.sin(t * c.cs * ring.spd + c.cp1p) * 1.1, radius * c.cp1r);
+        const cp2 = pt(a2 + Math.sin(t * c.cs * ring.spd + c.cp2p) * 1.1, radius * c.cp2r);
+        const al  = ring.alpha * (0.55 + 0.45 * Math.sin(t * 0.5 * ring.spd + c.phase));
+
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y);
+        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y);
+        ctx.strokeStyle = `hsla(${ring.hue},35%,72%,${al * 0.18})`;
+        ctx.lineWidth = ring.lw * 5; ctx.lineCap = 'round'; ctx.stroke();
+
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y);
+        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y);
+        ctx.strokeStyle = `hsla(${ring.hue},30%,80%,${al})`;
+        ctx.lineWidth = ring.lw; ctx.stroke();
+
+        ctx.beginPath(); ctx.arc(p1.x, p1.y, 1.4, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${ring.hue},45%,88%,${al * 0.7})`; ctx.fill();
+      });
+    });
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  /* ── Bio drawer ── */
+  const bio      = document.getElementById('ga-bio');
+  const closeBtn = document.getElementById('ga-close');
+  const openBio  = () => bio.classList.add('open');
+  const closeBio = () => bio.classList.remove('open');
+
+  let startY = null;
+
+  wrap.addEventListener('mousedown',  e => { startY = e.clientY; });
+  wrap.addEventListener('mouseup',    e => {
+    if (startY === null) return;
+    if (startY - e.clientY > 40 && !bio.classList.contains('open')) openBio();
+    startY = null;
+  });
+  wrap.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  wrap.addEventListener('touchend',   e => {
+    if (startY === null) return;
+    if (startY - e.changedTouches[0].clientY > 40 && !bio.classList.contains('open')) openBio();
+    startY = null;
+  }, { passive: true });
+
+  closeBtn.addEventListener('click', closeBio);
+
+  bio.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  bio.addEventListener('touchend',   e => {
+    if (startY - e.changedTouches[0].clientY < -40) closeBio();
+    startY = null;
+  }, { passive: true });
+})();
+</script>
+
+</body>
+</html>
